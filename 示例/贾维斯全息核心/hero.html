@@ -400,6 +400,9 @@ SHELLS.forEach(sh => {
 const F = 1400, CAMZ = 1500;
 let raf = 0;
 
+/* 录制模式：?rec=1 时由外部逐帧驱动，不跑 rAF */
+const REC = new URLSearchParams(location.search).get('rec') === '1';
+
 function draw(ts) {
   const t = ts / 1000;
   const spin = t * 0.28;
@@ -612,9 +615,14 @@ function draw(ts) {
   ctx.fillRect(CX - 260, CY - 0.6, 520, 1.2);
 
   ctx.globalCompositeOperation = 'source-over';
-  raf = requestAnimationFrame(draw);
+  if (!REC) raf = requestAnimationFrame(draw);
 }
-raf = requestAnimationFrame(draw);
+
+if (REC) {
+  window.__renderFrame = function (ms) { draw(ms); };
+  window.__ready = true;
+}
+if (!REC) raf = requestAnimationFrame(draw);
 
 /* 窗口小于 1920×1080 时整体等比缩放，避免右侧被窗口裁掉 */
 function fitView() {

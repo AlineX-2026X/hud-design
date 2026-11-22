@@ -54,3 +54,42 @@ sips -z 270 480 screenshots/jarvis-1920x1080-zh.png --out screenshots/jarvis-25p
 - 单位跟语言走：中文用「转/分、帧/秒、千赫、分贝、毫秒」，英文用 `RPM`、`FPS`、`kHz`、`dB`、`MS`。
 - 一屏只允许一种自然语言；混排只留机器标识。
 - 不使用电影台词与角色视觉（头盔、厂牌标识）。这里是通用的 AI 核心界面，不是某部作品的复刻。
+
+## 抖音成片（10 秒 / 竖屏）
+
+| 文件 | 规格 | 用途 |
+|---|---|---|
+| `jarvis-douyin-1080x1920.mp4` | 1080×1920 / 60fps / 10.0s / AAC 立体声 / 4.8 MB | 直接投抖音、视频号 |
+| `jarvis-master-1920x1080.mp4` | 1920×1080 / 60fps / 10.0s / 15 Mbps | 无字幕母版，二次剪辑用 |
+
+版式：竖屏上部标题区，中部 16:9 画面（1080×608），下部四条字幕；背景为画面自身模糊放大铺底。四条字幕依次为「5600 个粒子 实时运算」「三层球壳 加经纬网格」「七块面板 一屏读完状态」「可复用的 HUD 设计规则」。
+
+配乐为程序化合成（低频脉冲 + pad + 高频颗粒 + 结尾上扬），无第三方素材，可商用。`mean -19.9 dB / max -6.4 dB`。
+
+### 重新生成
+
+画面不是录屏，而是逐帧定格渲染（`?rec=1` 下由脚本调用 `window.__renderFrame(ms)`），因此不会掉帧、不会拍到浏览器 UI：
+
+```bash
+python3 rec_frames.py --fps 60 --dur 10 --lang zh     # 输出 /tmp/jarvis_frames/*.jpg
+```
+
+再用 ffmpeg 合成（`FF` 为 ffmpeg 可执行文件；中文字体用 `STHeiti Medium`）：
+
+```bash
+# 横屏母版
+$FF -framerate 60 -i /tmp/jarvis_frames/f%05d.jpg \
+  -vf "scale=in_range=full:out_range=tv,format=yuv420p" \
+  -c:v libx264 -crf 17 -preset medium -r 60 -movflags +faststart -an \
+  jarvis-master-1920x1080.mp4
+
+# 竖屏成片（模糊背景 + 前景 + 标题 + 定时字幕 + 配乐）
+$FF -framerate 60 -i /tmp/jarvis_frames/f%05d.jpg -i /tmp/jarvis_music.wav \
+  -filter_complex "[0:v]scale=2048:1920:force_original_aspect_ratio=increase,crop=1080:1920,gblur=sigma=64,eq=brightness=0.03:saturation=1.42:contrast=1.16[bg];\
+[0:v]scale=1080:608:flags=lanczos[fg];[bg][fg]overlay=0:392[base];\
+[base]drawtext=fontfile=/tmp/hud_font.ttc:text='JARVIS':fontsize=110:fontcolor=0xEAFDFF:x=(w-text_w)/2:y=40,\dots,format=yuv420p,setsar=1[v]" \
+  -map "[v]" -map 1:a -c:v libx264 -crf 20 -preset medium -r 60 -color_range tv \
+  -c:a aac -b:a 192k -shortest -movflags +faststart jarvis-douyin-1080x1920.mp4
+```
+
+字幕用 `enable='between(t,a,b)'` 定时显示；改文案时同步改 `drawtext` 的 `text`，并注意避免半角逗号与冒号（它们是 filter 分隔符）。

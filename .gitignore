@@ -1,3 +1,6 @@
 *.DS_Store
 .DS_Store
 Thumbs.db
+
+# 成片不进仓库，按 README 复现
+*.mp4
