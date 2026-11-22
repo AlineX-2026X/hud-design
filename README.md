@@ -2,6 +2,8 @@
 
 > 纯 Markdown 的 HUD / FUI 设计技能包：设计、诊断、深潜三件套，附两套中英双语示例。装进任何能读 `SKILL.md` 的 Agent 即可用，不生成图片、不调 API。
 
+不想用 git 的，直接到 [Releases](https://github.com/AlineX-2026X/hud-design/releases) 下载 zip：三个技能分开打包，另有一个含两套示例的合集包。
+
 ## HUD Design Skills — 给任何 Agent 的 HUD / FUI 设计能力
 
 三个独立技能，装进你的 Agent 就能用：从零设计一套 HUD、诊断已有界面的毛病、按层深潜到某一处细节。方法来自对成熟 HUD 成品画面的逐段拆解，不是凭感觉写的设计清单。
