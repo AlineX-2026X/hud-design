@@ -615,6 +615,14 @@ function draw(ts) {
   raf = requestAnimationFrame(draw);
 }
 raf = requestAnimationFrame(draw);
+
+/* 窗口小于 1920×1080 时整体等比缩放，避免右侧被窗口裁掉 */
+function fitView() {
+  const k = Math.min(window.innerWidth / 1920, window.innerHeight / 1080);
+  document.body.style.zoom = k < 1 ? k : 1;
+}
+fitView();
+window.addEventListener('resize', fitView);
 </script>
 </body>
 </html>
