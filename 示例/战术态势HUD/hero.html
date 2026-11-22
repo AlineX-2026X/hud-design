@@ -205,6 +205,15 @@
   .cmd{display:flex;gap:10px}
   .cmd div{font-size:10px;letter-spacing:.26em;padding:11px 18px;border:1px solid var(--line);color:var(--dim)}
   .cmd .on{border-color:rgba(124,255,178,.85);color:var(--ink);background:rgba(124,255,178,.07);box-shadow:0 0 14px rgba(124,255,178,.10)}
+
+  /* ===== 动效层（预览与录制共用；所有状态由时间推导，逐帧可复现） ===== */
+  #fx{position:absolute;left:0;top:0;width:1920px;height:1080px;z-index:40;pointer-events:none}
+  .lock{will-change:transform}
+  .lock.t4.hot .box{border-color:#FF3B30;box-shadow:0 0 30px rgba(255,59,48,.45),inset 0 0 26px rgba(255,59,48,.18)}
+  .lock.t4.hot .tag .n{text-shadow:0 0 12px rgba(255,59,48,.95)}
+  .lock.t4.hot .meta b{color:#FF6B63}
+  .alertbar{will-change:opacity}
+  .primary .r1,.primary .r2{will-change:transform}
 </style>
 </head>
 <body>
@@ -407,6 +416,8 @@
   <div class="vig"></div>
 </div>
 
+<canvas id="fx" width="1920" height="1080"></canvas>
+
 <script>
 const cv = document.getElementById('terrain'), ctx = cv.getContext('2d');
 const W = cv.width, H = cv.height, STEP = 6;
@@ -516,5 +527,170 @@ ctx.fillStyle = grad;
 ctx.beginPath(); ctx.moveTo(0,0); ctx.arc(0,0,430, -0.17, 0.17); ctx.closePath(); ctx.fill();
 ctx.restore();
 </script>
+
+<script>
+/* ===== 动效层：入场推近 / 雷达扫掠 / 锁框漂移 / 告警升级 / 频谱抖动 =====
+   所有状态都是 render(ms) 的纯函数，所以可以逐帧定格导出，不会掉帧、不可复现。 */
+(() => {
+  const REC = new URLSearchParams(location.search).get('rec') === '1';
+  const fx = document.getElementById('fx');
+  const c = fx.getContext('2d');
+  const frame = document.querySelector('.frame');
+  const stage = document.querySelector('.stage');
+  const SX = 372, SY = 160;                 // stage 在 frame 内的位置
+  const CX = SX + 690, CY = SY + 324, RAD = 384;
+
+  const locks  = [...document.querySelectorAll('.lock')];
+  const specs  = [...document.querySelectorAll('.spec i')];
+  const alertbar = document.querySelector('.alertbar');
+  const utcS   = document.querySelector('.utc s');
+  const r1 = document.querySelector('.primary .r1');
+  const r2 = document.querySelector('.primary .r2');
+  const cmark = document.querySelector('.compass .mark');
+
+  // 每个锁框的漂移参数（周期与相位都不同，避免同频摆动）
+  const MOTION = [
+    {ax: 7,  ay: 5,  wx: 0.90, wy: 1.10, p: 0.0},
+    {ax: -6, ay: 6,  wx: 1.30, wy: 0.72, p: 1.2},
+    {ax: 8,  ay: -6, wx: 0.62, wy: 0.84, p: 2.4},
+    {ax: 4,  ay: 4,  wx: 0.48, wy: 0.40, p: 0.6},
+  ];
+  const baseH = specs.map(i => parseFloat(i.style.height) || 40);
+  const bases = locks.map((l, i) => ({
+    el: l,
+    cx: l.offsetLeft + l.offsetWidth / 2,
+    cy: l.offsetTop + l.offsetHeight / 2,
+    hot: l.classList.contains('t4'),
+    dx: 0, dy: 0,
+  }));
+
+  function render(ms) {
+    const t = ms / 1000;
+
+    /* 入场：0–1.35s 轻轻推近 */
+    const inK = Math.min(1, t / 1.35);
+    const ease = 1 - Math.pow(1 - inK, 3);
+    if (frame) frame.style.transform = `scale(${(1.035 - 0.035 * ease).toFixed(4)})`;
+
+    /* 锁框漂移：目标在动，锁框跟着动 */
+    bases.forEach((b, i) => {
+      const m = MOTION[i];
+      b.dx = m.ax * Math.sin(t * m.wx + m.p);
+      b.dy = m.ay * Math.cos(t * m.wy + m.p);
+      b.el.style.transform = `translate(${b.dx.toFixed(2)}px,${b.dy.toFixed(2)}px)`;
+    });
+
+    /* 主目标双环反向旋转 */
+    if (r1) r1.style.transform = `rotate(${(t * 62) % 360}deg)`;
+    if (r2) r2.style.transform = `rotate(${(-(t * 96)) % 360}deg)`;
+
+    /* 告警条呼吸 */
+    if (alertbar) alertbar.style.opacity = (0.80 + 0.20 * Math.abs(Math.sin(t * 2.9))).toFixed(3);
+
+    /* 频谱抖动 */
+    specs.forEach((el, i) => {
+      const h = baseH[i] + 20 * Math.sin(t * (2.1 + i * 0.13) + i * 0.7);
+      el.style.height = Math.max(8, Math.min(100, h)).toFixed(1) + '%';
+    });
+
+    /* 时钟末位换成跳动的帧号 */
+    if (utcS) utcS.textContent = String(Math.floor(ms / 16.667) % 60).padStart(2, '0');
+
+    /* 罗盘指针微摆 */
+    if (cmark) cmark.style.transform = `translateX(${(3 * Math.sin(t * 0.7)).toFixed(2)}px)`;
+
+    /* 6.2s：TGT-04 由“接触”升级为“逼近” */
+    bases.forEach(b => { if (b.hot) b.el.classList.toggle('hot', t > 6.2); });
+
+    /* ---------- canvas ---------- */
+    c.clearRect(0, 0, 1920, 1080);
+
+    // 全屏下行扫描带
+    const per = 3.2, ph = (t % per) / per, sy = ph * (1080 + 260) - 130;
+    const g = c.createLinearGradient(0, sy - 96, 0, sy + 1);
+    g.addColorStop(0, 'rgba(124,255,178,0)');
+    g.addColorStop(0.86, 'rgba(124,255,178,0.07)');
+    g.addColorStop(1, 'rgba(170,255,212,0.17)');
+    c.fillStyle = g;
+    c.fillRect(0, sy - 96, 1920, 97);
+
+    // 雷达扫掠（4 秒一圈）+ 三层余晖
+    const ang = (t / 4) * Math.PI * 2;
+    for (let k = 0; k < 4; k++) {
+      const a0 = ang - k * 0.05;
+      const al = k === 0 ? 0.13 : 0.10 - k * 0.026;
+      const rg = c.createRadialGradient(CX, CY, 24, CX, CY, RAD);
+      rg.addColorStop(0, `rgba(124,255,178,${(al * 0.92).toFixed(3)})`);
+      rg.addColorStop(0.62, `rgba(124,255,178,${(al * 0.5).toFixed(3)})`);
+      rg.addColorStop(1, 'rgba(124,255,178,0)');
+      c.fillStyle = rg;
+      c.beginPath();
+      c.moveTo(CX, CY);
+      c.arc(CX, CY, RAD, a0 - 0.20, a0 + 0.20);
+      c.closePath();
+      c.fill();
+    }
+    // 扫掠前缘细线
+    c.strokeStyle = 'rgba(198,255,224,0.55)';
+    c.lineWidth = 1.2;
+    c.beginPath();
+    c.moveTo(CX, CY);
+    c.lineTo(CX + Math.cos(ang) * RAD, CY + Math.sin(ang) * RAD);
+    c.stroke();
+
+    // 目标光点：被扫掠扫过时点亮，随后衰减（雷达余辉）
+    bases.forEach(b => {
+      const px = CX + (b.cx - 690) + b.dx;
+      const py = CY + (b.cy - 324) + b.dy;
+      const ta = Math.atan2(py - CY, px - CX);
+      let d = (ang - ta) % (Math.PI * 2);
+      if (d < 0) d += Math.PI * 2;
+      const glow = Math.max(0, 1 - d / 1.45);
+      const isHot = b.hot && t > 6.2;
+      const col = isHot ? '255,59,48' : '124,255,178';
+      const rad = 3.4 + glow * 3.2;
+      const gg = c.createRadialGradient(px, py, 0, px, py, rad * 4.8);
+      gg.addColorStop(0, `rgba(${col},${(0.5 + glow * 0.5).toFixed(3)})`);
+      gg.addColorStop(1, `rgba(${col},0)`);
+      c.fillStyle = gg;
+      c.beginPath(); c.arc(px, py, rad * 4.8, 0, Math.PI * 2); c.fill();
+      c.fillStyle = `rgba(${col},0.92)`;
+      c.beginPath(); c.arc(px, py, rad, 0, Math.PI * 2); c.fill();
+    });
+
+    // 升级后的红色脉冲环
+    if (t > 6.2) {
+      const b = bases.find(x => x.hot);
+      if (b) {
+        const px = CX + (b.cx - 690) + b.dx;
+        const py = CY + (b.cy - 324) + b.dy;
+        for (let k = 0; k < 3; k++) {
+          const p = (((t - 6.2) / 1.5) + k / 3) % 1;
+          c.strokeStyle = `rgba(255,59,48,${(0.44 * (1 - p)).toFixed(3)})`;
+          c.lineWidth = 2;
+          c.beginPath(); c.arc(px, py, 16 + p * 96, 0, Math.PI * 2); c.stroke();
+        }
+      }
+    }
+
+    // 入场黑幕（比单纯改 opacity 更能保住对比）
+    if (inK < 1) {
+      c.fillStyle = `rgba(2,4,6,${(1 - ease).toFixed(3)})`;
+      c.fillRect(0, 0, 1920, 1080);
+    }
+  }
+
+  if (REC) {
+    window.__renderFrame = render;
+    render(0);
+    window.__ready = true;
+  } else {
+    const t0 = performance.now();
+    const loop = now => { render(now - t0); requestAnimationFrame(loop); };
+    requestAnimationFrame(loop);
+  }
+})();
+</script>
+
 </body>
 </html>
