@@ -5,91 +5,112 @@
 <title>JARVIS — Holographic Core</title>
 <style>
   :root{
-    --c:#6FE8FF; --c2:#D6FAFF; --m:rgba(111,232,255,.68); --l:rgba(111,232,255,.38);
-    --a:#FFB347; --bg:#03070B; --ink:#EAFDFF;
-    --line:rgba(111,232,255,.26); --soft:rgba(111,232,255,.10);
+    --c:#6FE8FF; --c2:#D6FAFF; --m:rgba(111,232,255,.70); --l:rgba(111,232,255,.42);
+    --ll:rgba(111,232,255,.24); --a:#FFB347; --bg:#03070B; --ink:#EAFDFF;
+    --line:rgba(111,232,255,.26); --soft:rgba(111,232,255,.09);
   }
   *{box-sizing:border-box;margin:0;padding:0}
   html,body{width:1920px;height:1080px;overflow:hidden;background:var(--bg)}
   body{font-family:"JetBrains Mono","IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
        color:var(--c);-webkit-font-smoothing:antialiased}
   .frame{position:relative;width:1920px;height:1080px;overflow:hidden;
-    background:radial-gradient(900px 700px at 50% 47%, #071420 0%, #04090E 42%, #02050A 78%, #010305 100%)}
+    background:radial-gradient(920px 720px at 50% 45%, #08161F 0%, #04090E 44%, #02050A 80%, #010305 100%)}
   #scene{position:absolute;inset:0;width:1920px;height:1080px}
   .vig{position:absolute;inset:0;pointer-events:none;
-    box-shadow:inset 0 0 220px 50px rgba(0,0,0,.62), inset 0 0 60px 12px rgba(0,0,0,.34)}
+    box-shadow:inset 0 0 210px 44px rgba(0,0,0,.52), inset 0 0 56px 10px rgba(0,0,0,.26)}
 
-  /* 字阶 */
-  .t9{font-size:9.5px;letter-spacing:.26em;color:var(--l);text-transform:uppercase}
-  .t10{font-size:10px;letter-spacing:.18em;color:var(--m)}
+  .t9{font-size:10.5px;letter-spacing:.26em;color:var(--l)}
   .num{font-variant-numeric:tabular-nums}
 
-  /* 角标：四边不全封 */
-  .bracket{position:absolute;width:34px;height:34px;border:1px solid rgba(111,232,255,.34);pointer-events:none}
+  .bracket{position:absolute;width:34px;height:34px;border:1px solid rgba(111,232,255,.32);pointer-events:none}
   .b1{left:24px;top:24px;border-right:0;border-bottom:0}
   .b2{right:24px;top:24px;border-left:0;border-bottom:0}
   .b3{left:24px;bottom:24px;border-right:0;border-top:0}
   .b4{right:24px;bottom:24px;border-left:0;border-top:0}
 
-  /* 顶部 */
-  .top{position:absolute;left:64px;right:64px;top:52px;display:flex;justify-content:space-between;align-items:flex-start}
+  /* 顶栏 */
+  .top{position:absolute;left:64px;right:64px;top:44px;display:flex;justify-content:space-between;align-items:flex-start}
   .brand h1{font-size:58px;line-height:.86;letter-spacing:.14em;color:var(--ink);
     text-shadow:0 0 34px rgba(111,232,255,.45),0 0 90px rgba(111,232,255,.16)}
-  .brand .sub{margin-top:12px;display:flex;align-items:center;gap:12px;font-size:10px;letter-spacing:.3em;color:var(--m)}
+  .brand .sub{margin-top:11px;display:flex;align-items:center;gap:12px;font-size:10px;letter-spacing:.30em;color:var(--m)}
   .brand .sub .bar{width:38px;height:1px;background:rgba(111,232,255,.42)}
-  .status{margin-top:9px;display:flex;align-items:center;gap:9px;font-size:9.5px;letter-spacing:.24em;color:var(--l)}
+  .brand .status{margin-top:9px;display:flex;align-items:center;gap:9px;font-size:10.5px;letter-spacing:.24em;color:var(--l)}
   .pulse{width:6px;height:6px;background:var(--c);box-shadow:0 0 10px var(--c);animation:breathe 3.2s ease-in-out infinite}
   @keyframes breathe{0%,100%{opacity:.55}50%{opacity:1}}
+  .brand .mini{margin-top:12px;display:flex;gap:22px}
+  .brand .mini span{font-size:9.5px;letter-spacing:.16em;color:var(--ll)}
+  .brand .mini b{color:var(--m);font-weight:500;margin-left:6px;letter-spacing:.08em}
 
   .meta{text-align:right}
   .clock{font-size:34px;letter-spacing:.08em;color:var(--ink);text-shadow:0 0 22px rgba(111,232,255,.28)}
   .clock s{text-decoration:none;color:rgba(111,232,255,.45)}
-  .meta .rows{margin-top:11px;display:flex;flex-direction:column;gap:7px;align-items:flex-end}
-  .meta .rows span{font-size:9.5px;letter-spacing:.2em;color:var(--l)}
-  .meta .rows b{color:var(--m);font-weight:500;margin-left:8px;letter-spacing:.1em}
+  .meta .date{margin-top:4px;font-size:9.5px;letter-spacing:.26em;color:var(--ll)}
+  .meta .rows{margin-top:12px;display:grid;grid-template-columns:auto auto;gap:6px 20px;justify-items:end}
+  .meta .rows span{font-size:10px;letter-spacing:.18em;color:var(--ll)}
+  .meta .rows b{color:var(--m);font-weight:500;margin-left:8px;letter-spacing:.08em}
 
-  /* 左下：四联环表 */
-  .gauges{position:absolute;left:64px;bottom:150px;display:flex;gap:26px}
-  .g{width:92px}
-  .ring{position:relative;width:92px;height:92px}
-  .ring i{position:absolute;inset:0;border-radius:50%;border:1px solid rgba(111,232,255,.16)}
-  .ring i:first-child{border:0;background:conic-gradient(from 0deg, rgba(111,232,255,.85) var(--p), rgba(111,232,255,.06) 0);
+  /* 通用面板 */
+  .mod{position:absolute}
+  .mod .hd,.feed .hd{display:flex;justify-content:space-between;align-items:baseline;padding-bottom:8px;
+    border-bottom:1px solid var(--line);margin-bottom:10px}
+  .mod .hd span,.feed .hd span{font-size:10px;letter-spacing:.26em;color:var(--l)}
+  .mod .hd em,.feed .hd em{font-style:normal;font-size:9px;letter-spacing:.2em;color:var(--ll)}
+
+  .modlist{left:64px;top:214px;width:300px}
+  .row{display:grid;grid-template-columns:8px 1fr auto;gap:10px;align-items:baseline;padding:6px 0;
+    border-bottom:1px solid rgba(111,232,255,.055)}
+  .row:last-child{border-bottom:0}
+  .row .d{width:5px;height:5px;border-radius:50%;background:var(--c);box-shadow:0 0 8px rgba(111,232,255,.8);align-self:center}
+  .row .d.amb{background:var(--a);box-shadow:0 0 8px rgba(255,179,71,.7)}
+  .row .n{font-size:11px;letter-spacing:.14em;color:var(--m)}
+  .row .v{font-size:11px;letter-spacing:.06em;color:var(--ink)}
+  .row .v.warn{color:var(--a)}
+
+  .sig{right:64px;top:214px;width:340px}
+  .sig .bars{display:flex;align-items:flex-end;gap:3px;height:88px;border-bottom:1px solid var(--soft)}
+  .sig .bars i{flex:1;background:linear-gradient(to top, rgba(111,232,255,.10), rgba(111,232,255,.72))}
+  .sig .axis{display:flex;justify-content:space-between;margin-top:6px;font-size:9.5px;letter-spacing:.12em;color:var(--ll)}
+  .sig .kv{margin-top:14px;display:grid;grid-template-columns:1fr 1fr;gap:7px 16px}
+  .sig .kv span{font-size:9.5px;letter-spacing:.16em;color:var(--ll)}
+  .sig .kv b{color:var(--m);font-weight:500;margin-left:6px}
+
+  .gauges{position:absolute;left:64px;bottom:150px;display:flex;gap:24px}
+  .g{width:88px}
+  .ring{position:relative;width:88px;height:88px}
+  .ring i{position:absolute;inset:0;border-radius:50%;border:1px solid rgba(111,232,255,.14)}
+  .ring i:first-child{border:0;background:conic-gradient(from 0deg, rgba(111,232,255,.82) var(--p), rgba(111,232,255,.05) 0);
     -webkit-mask:radial-gradient(circle, transparent 62%, #000 63%);
     mask:radial-gradient(circle, transparent 62%, #000 63%)}
-  .ring .v{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:19px;color:var(--ink)}
-  .ring .v small{font-size:8px;color:var(--l);margin-left:2px;letter-spacing:.1em}
-  .g .lab{margin-top:9px;text-align:center;font-size:9px;letter-spacing:.24em;color:var(--l)}
+  .ring .v{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:18px;color:var(--ink)}
+  .ring .v small{font-size:9px;color:var(--ll);margin-left:2px;letter-spacing:.1em}
+  .g .lab{margin-top:7px;text-align:center;font-size:9.5px;letter-spacing:.22em;color:var(--l)}
+  .g .sub{margin-top:3px;text-align:center;font-size:9px;letter-spacing:.1em;color:var(--ll)}
+  .hwin{position:absolute;left:64px;bottom:104px;display:flex;gap:26px}
+  .hwin span{font-size:9.5px;letter-spacing:.18em;color:var(--ll)}
+  .hwin b{color:var(--m);font-weight:500;margin-left:6px;letter-spacing:.08em}
 
-  /* 右下：日志 */
   .feed{position:absolute;right:64px;bottom:150px;width:392px}
-  .feed .hd{display:flex;justify-content:space-between;align-items:baseline;padding-bottom:9px;
-    border-bottom:1px solid var(--line);margin-bottom:11px}
-  .feed .hd span{font-size:9px;letter-spacing:.26em;color:var(--l)}
-  .feed .hd em{font-style:normal;font-size:8.5px;letter-spacing:.2em;color:var(--l)}
-  .feed ul{list-style:none;display:flex;flex-direction:column;gap:8px}
-  .feed li{display:grid;grid-template-columns:64px 1fr;gap:12px;font-size:10px;letter-spacing:.05em;color:var(--m)}
-  .feed li b{font-size:9px;letter-spacing:.1em;color:rgba(111,232,255,.42);font-weight:400}
+  .feed ul{list-style:none;display:flex;flex-direction:column;gap:7px}
+  .feed li{display:grid;grid-template-columns:68px 1fr auto;gap:10px;font-size:10.5px;letter-spacing:.04em;color:var(--m)}
+  .feed li b{font-size:9px;letter-spacing:.08em;color:rgba(111,232,255,.40);font-weight:400}
+  .feed li i{font-style:normal;font-size:9px;letter-spacing:.14em;color:var(--ll)}
   .feed li.warn{color:var(--a)}
-  .feed li.warn b{color:rgba(255,179,71,.5)}
+  .feed li.warn b{color:rgba(255,179,71,.46)}
 
-  /* 中央环上的极短标签（在包围盒外） */
-  .c-top{position:absolute;left:50%;top:162px;transform:translateX(-50%);text-align:center}
-  .c-top span{font-size:9px;letter-spacing:.34em;color:rgba(111,232,255,.42)}
-  .c-bot{position:absolute;left:50%;top:936px;transform:translateX(-50%);display:flex;gap:22px}
-  .c-bot span{font-size:9px;letter-spacing:.24em;color:rgba(111,232,255,.40)}
-  .c-bot b{color:rgba(111,232,255,.66);font-weight:500;letter-spacing:.1em;margin-left:7px}
+  .c-bot{position:absolute;left:50%;top:946px;transform:translateX(-50%);display:flex;gap:26px}
+  .c-bot span{font-size:9.5px;letter-spacing:.22em;color:var(--ll)}
+  .c-bot b{color:rgba(111,232,255,.72);font-weight:500;letter-spacing:.08em;margin-left:6px}
 
-  /* 底栏 */
-  .bottom{position:absolute;left:64px;right:64px;bottom:52px;height:56px;display:flex;align-items:center;justify-content:space-between;
-    border-top:1px solid rgba(111,232,255,.14)}
-  .prompt{display:flex;align-items:center;gap:14px}
-  .caret{width:8px;height:14px;background:var(--c);box-shadow:0 0 12px rgba(111,232,255,.8);animation:blink 1.6s steps(1) infinite}
-  @keyframes blink{0%,49%{opacity:1}50%,100%{opacity:.25}}
-  .prompt .txt{font-size:11px;letter-spacing:.2em;color:var(--m)}
-  .prompt .hint{font-size:9px;letter-spacing:.2em;color:rgba(111,232,255,.38)}
-  .sigs{display:flex;gap:26px}
-  .sigs div{font-size:9px;letter-spacing:.2em;color:var(--l)}
-  .sigs b{color:var(--m);font-weight:500;margin-left:8px;letter-spacing:.1em}
+  .bottom{position:absolute;left:64px;right:64px;bottom:38px;height:50px;display:flex;align-items:center;justify-content:space-between;
+    border-top:1px solid rgba(111,232,255,.13)}
+  .prompt{display:flex;align-items:center;gap:13px}
+  .caret{width:7px;height:13px;background:var(--c);box-shadow:0 0 12px rgba(111,232,255,.8);animation:blink 1.6s steps(1) infinite}
+  @keyframes blink{0%,49%{opacity:1}50%,100%{opacity:.22}}
+  .prompt .txt{font-size:11.5px;letter-spacing:.2em;color:var(--m)}
+  .prompt .hint{font-size:9.5px;letter-spacing:.18em;color:var(--ll)}
+  .sigs{display:flex;gap:22px}
+  .sigs div{font-size:9.5px;letter-spacing:.18em;color:var(--ll)}
+  .sigs b{color:var(--m);font-weight:500;margin-left:6px;letter-spacing:.08em}
 </style>
 </head>
 <body>
@@ -104,44 +125,91 @@
       <h1>JARVIS</h1>
       <div class="sub"><span class="bar"></span><span data-i18n="sub">HOLOGRAPHIC CORE</span></div>
       <div class="status"><span class="pulse"></span><span data-i18n="status">CORE ONLINE · NOMINAL</span></div>
+      <div class="mini">
+        <span data-i18n="sess">SESSION<b>JV-0417</b></span>
+        <span data-i18n="mode">MODE<b>AUTONOMOUS</b></span>
+        <span data-i18n="up">UPTIME<b>412 H</b></span>
+      </div>
     </div>
     <div class="meta">
       <div class="clock num">23:41:<s>07</s></div>
+      <div class="date" data-i18n="date">2031.04.17 · NIGHT WATCH</div>
       <div class="rows">
         <span data-i18n="link">LINK<b>99.7%</b></span>
         <span data-i18n="lat">LATENCY<b>4 MS</b></span>
-        <span data-i18n="temp">CORE TEMP<b>36.4 °C</b></span>
+        <span data-i18n="temp">TEMP<b>36.4 °C</b></span>
+        <span data-i18n="load">LOAD<b>74%</b></span>
+        <span data-i18n="pwr">POWER<b>84%</b></span>
+        <span data-i18n="thr">THREADS<b>1,024</b></span>
       </div>
+    </div>
+  </div>
+
+  <div class="mod modlist">
+    <div class="hd"><span data-i18n="mlHd">MODULES</span><em data-i18n="mlEm">10 / 11 ONLINE</em></div>
+    <div class="row"><span class="d"></span><span class="n" data-i18n="m1">VOICE MODEL</span><span class="v">99.2%</span></div>
+    <div class="row"><span class="d"></span><span class="n" data-i18n="m2">NLU CORE</span><span class="v">97.4%</span></div>
+    <div class="row"><span class="d"></span><span class="n" data-i18n="m3">MEMORY BUS</span><span class="v">62%</span></div>
+    <div class="row"><span class="d amb"></span><span class="n" data-i18n="m4">THERMAL LOOP</span><span class="v warn">WARN</span></div>
+    <div class="row"><span class="d"></span><span class="n" data-i18n="m5">VISION ARRAY</span><span class="v" data-i18n="m5v">STANDBY</span></div>
+    <div class="row"><span class="d"></span><span class="n" data-i18n="m6">ACTUATORS</span><span class="v" data-i18n="m6v">6 / 6</span></div>
+  </div>
+
+  <div class="mod sig">
+    <div class="hd"><span data-i18n="sgHd">VOICE LINK · SPECTRUM</span><em data-i18n="sgEm">2.4 – 5.8 kHz</em></div>
+    <div class="bars">
+      <i style="height:22%"></i><i style="height:38%"></i><i style="height:29%"></i><i style="height:52%"></i>
+      <i style="height:66%"></i><i style="height:47%"></i><i style="height:72%"></i><i style="height:58%"></i>
+      <i style="height:84%"></i><i style="height:64%"></i><i style="height:45%"></i><i style="height:35%"></i>
+      <i style="height:51%"></i><i style="height:69%"></i><i style="height:43%"></i><i style="height:26%"></i>
+      <i style="height:34%"></i><i style="height:20%"></i><i style="height:28%"></i><i style="height:14%"></i>
+      <i style="height:19%"></i><i style="height:11%"></i><i style="height:17%"></i><i style="height:9%"></i>
+    </div>
+    <div class="axis"><span>2.4</span><span>3.2</span><span>4.0</span><span>4.8</span><span>5.8</span></div>
+    <div class="kv">
+      <span data-i18n="k1">SNR<b>21 dB</b></span>
+      <span data-i18n="k2">VOICE<b>91%</b></span>
+      <span data-i18n="k3">WER<b>2.1%</b></span>
+      <span data-i18n="k4">LANG<b>ZH / EN</b></span>
     </div>
   </div>
 
   <div class="gauges">
     <div class="g">
       <div class="ring" style="--p:78%"><i></i><i></i><div class="v">78<small>%</small></div></div>
-      <div class="lab" data-i18n="g1">COMPUTE</div>
+      <div class="lab" data-i18n="g1">COMPUTE</div><div class="sub">6.2 TF</div>
     </div>
     <div class="g">
       <div class="ring" style="--p:62%"><i></i><i></i><div class="v">62<small>%</small></div></div>
-      <div class="lab" data-i18n="g2">MEMORY</div>
+      <div class="lab" data-i18n="g2">MEMORY</div><div class="sub">198 GB</div>
     </div>
     <div class="g">
       <div class="ring" style="--p:91%"><i></i><i></i><div class="v">91<small>%</small></div></div>
-      <div class="lab" data-i18n="g3">VOICE</div>
+      <div class="lab" data-i18n="g3">VOICE</div><div class="sub">48 kHz</div>
     </div>
     <div class="g">
       <div class="ring" style="--p:84%"><i></i><i></i><div class="v">84<small>%</small></div></div>
-      <div class="lab" data-i18n="g4">POWER</div>
+      <div class="lab" data-i18n="g4">POWER</div><div class="sub">3.1 kW</div>
     </div>
   </div>
 
+  <div class="hwin">
+    <span data-i18n="h1">BUS<b>12.4 V</b></span>
+    <span data-i18n="h2">CURRENT<b>248 A</b></span>
+    <span data-i18n="h3">FANS<b>2,140 RPM</b></span>
+    <span data-i18n="h4">CORE<b>4.1 GHz</b></span>
+  </div>
+
   <div class="feed">
-    <div class="hd"><span data-i18n="feedHd">SYSTEM LOG</span><em data-i18n="feedWin">LAST 60 S</em></div>
+    <div class="hd"><span data-i18n="fdHd">SYSTEM LOG</span><em data-i18n="fdEm">LAST 60 S</em></div>
     <ul>
-      <li><b>23:40:58</b><span data-i18n="l1">Core spin-up complete</span></li>
-      <li><b>23:41:02</b><span data-i18n="l2">Voice model v4.2 loaded</span></li>
-      <li class="warn"><b>23:41:03</b><span data-i18n="l3">Thermal margin 6.2 °C</span></li>
-      <li><b>23:41:05</b><span data-i18n="l4">Operator channel open</span></li>
-      <li><b>23:41:07</b><span data-i18n="l5">All systems nominal</span></li>
+      <li><b>23:40:58</b><span data-i18n="l1">Core spin-up complete</span><i>CORE</i></li>
+      <li><b>23:41:02</b><span data-i18n="l2">Voice model v4.2 loaded</span><i>NLU</i></li>
+      <li class="warn"><b>23:41:03</b><span data-i18n="l3">Thermal margin 6.2 °C</span><i>THM</i></li>
+      <li><b>23:41:04</b><span data-i18n="l4">Vision array parked</span><i>VIS</i></li>
+      <li><b>23:41:05</b><span data-i18n="l5">Operator channel open</span><i>OPS</i></li>
+      <li><b>23:41:06</b><span data-i18n="l6">Mesh cache flushed</span><i>MEM</i></li>
+      <li><b>23:41:07</b><span data-i18n="l7">All systems nominal</span><i>SYS</i></li>
     </ul>
   </div>
 
@@ -149,7 +217,7 @@
     <span data-i18n="b0">PARTICLES<b>3,600</b></span>
     <span data-i18n="b1">SPIN<b>2.4 RPM</b></span>
     <span data-i18n="b2">FRAME<b>60 FPS</b></span>
-    <span data-i18n="b3">BLOOM<b>0.86</b></span>
+    <span data-i18n="b3">SCAN<b>6.6 S</b></span>
   </div>
 
   <div class="bottom">
@@ -162,6 +230,8 @@
       <div data-i18n="s1">INPUT<b>48 kHz</b></div>
       <div data-i18n="s2">NOISE<b>−42 dB</b></div>
       <div data-i18n="s3">SYNC<b>4 MS</b></div>
+      <div data-i18n="s4">RES<b>16 BIT</b></div>
+      <div data-i18n="s5">CODEC<b>OPUS-2</b></div>
     </div>
   </div>
 
@@ -169,43 +239,57 @@
 </div>
 
 <script>
-/* ============ 语言：先探测，再渲染 ============ */
+/* ============ 语言 ============ */
 const DICT = {
   zh: {
-    sub: '全息核心', status: '核心在线 · 状态正常',
-    link: '链路<b>99.7%</b>', lat: '时延<b>4 毫秒</b>', temp: '核心温度<b>36.4 °C</b>',
-    coreTag: '等离子核心 · 3,600 粒子',
-    g1: '算力', g2: '内存', g3: '语音', g4: '能源',
-    feedHd: '系统日志', feedWin: '近 60 秒',
-    l1: '核心起转完成', l2: '语音模型 v4.2 载入', l3: '热余量 6.2 °C',
-    l4: '操作员通道开启', l5: '全部系统正常',
-    b0: '粒子<b>3,600</b>',
-    b1: '转速<b>2.4 转/分</b>', b2: '帧率<b>60 帧/秒</b>', b3: '泛光<b>0.86</b>',
-    prompt: '语音链路就绪', hint: '按住 [ 空格 ] 说话',
-    s1: '输入<b>48 千赫</b>', s2: '底噪<b>−42 分贝</b>', s3: '同步<b>4 毫秒</b>'
+    sub:'全息核心', status:'核心在线 · 状态正常',
+    sess:'会话<b>JV-0417</b>', mode:'模式<b>自主</b>', up:'运行<b>412 小时</b>',
+    date:'2031.04.17 · 夜间值守',
+    link:'链路<b>99.7%</b>', lat:'时延<b>4 毫秒</b>', temp:'温度<b>36.4 °C</b>',
+    load:'负载<b>74%</b>', pwr:'能源<b>84%</b>', thr:'线程<b>1,024</b>',
+    mlHd:'模块', mlEm:'11 个 · 在线 10',
+    m1:'语音模型', m2:'语义内核', m3:'内存总线', m4:'热管理回路',
+    m5:'视觉阵列', m5v:'待命', m6:'执行器', m6v:'6 / 6',
+    sgHd:'语音链路 · 频谱', sgEm:'2.4 – 5.8 千赫',
+    k1:'信噪比<b>21 分贝</b>', k2:'语音<b>91%</b>', k3:'字错率<b>2.1%</b>', k4:'语言<b>中 / 英</b>',
+    g1:'算力', g2:'内存', g3:'语音', g4:'能源',
+    h1:'总线<b>12.4 V</b>', h2:'电流<b>248 A</b>', h3:'风扇<b>2,140 转/分</b>', h4:'主频<b>4.1 GHz</b>',
+    fdHd:'系统日志', fdEm:'近 60 秒',
+    l1:'核心起转完成', l2:'语音模型 v4.2 载入', l3:'热余量 6.2 °C', l4:'视觉阵列归位',
+    l5:'操作员通道开启', l6:'网格缓存已清', l7:'全部系统正常',
+    b0:'粒子<b>3,600</b>', b1:'转速<b>2.4 转/分</b>', b2:'帧率<b>60 帧/秒</b>', b3:'扫描<b>6.6 秒</b>',
+    prompt:'语音链路就绪', hint:'按住 [ 空格 ] 说话',
+    s1:'输入<b>48 千赫</b>', s2:'底噪<b>−42 分贝</b>', s3:'同步<b>4 毫秒</b>',
+    s4:'位深<b>16 位</b>', s5:'编码<b>OPUS-2</b>'
   },
   en: {
-    sub: 'HOLOGRAPHIC CORE', status: 'CORE ONLINE · NOMINAL',
-    link: 'LINK<b>99.7%</b>', lat: 'LATENCY<b>4 MS</b>', temp: 'CORE TEMP<b>36.4 °C</b>',
-    coreTag: 'PLASMA CORE · 3,600 PARTICLES',
-    g1: 'COMPUTE', g2: 'MEMORY', g3: 'VOICE', g4: 'POWER',
-    feedHd: 'SYSTEM LOG', feedWin: 'LAST 60 S',
-    l1: 'Core spin-up complete', l2: 'Voice model v4.2 loaded', l3: 'Thermal margin 6.2 °C',
-    l4: 'Operator channel open', l5: 'All systems nominal',
-    b0: 'PARTICLES<b>3,600</b>',
-    b1: 'SPIN<b>2.4 RPM</b>', b2: 'FRAME<b>60 FPS</b>', b3: 'BLOOM<b>0.86</b>',
-    prompt: 'VOICE LINK READY', hint: 'HOLD [ SPACE ] TO SPEAK',
-    s1: 'INPUT<b>48 kHz</b>', s2: 'NOISE<b>−42 dB</b>', s3: 'SYNC<b>4 MS</b>'
+    sub:'HOLOGRAPHIC CORE', status:'CORE ONLINE · NOMINAL',
+    sess:'SESSION<b>JV-0417</b>', mode:'MODE<b>AUTONOMOUS</b>', up:'UPTIME<b>412 H</b>',
+    date:'2031.04.17 · NIGHT WATCH',
+    link:'LINK<b>99.7%</b>', lat:'LATENCY<b>4 MS</b>', temp:'TEMP<b>36.4 °C</b>',
+    load:'LOAD<b>74%</b>', pwr:'POWER<b>84%</b>', thr:'THREADS<b>1,024</b>',
+    mlHd:'MODULES', mlEm:'10 / 11 ONLINE',
+    m1:'VOICE MODEL', m2:'NLU CORE', m3:'MEMORY BUS', m4:'THERMAL LOOP',
+    m5:'VISION ARRAY', m5v:'STANDBY', m6:'ACTUATORS', m6v:'6 / 6',
+    sgHd:'VOICE LINK · SPECTRUM', sgEm:'2.4 – 5.8 kHz',
+    k1:'SNR<b>21 dB</b>', k2:'VOICE<b>91%</b>', k3:'WER<b>2.1%</b>', k4:'LANG<b>ZH / EN</b>',
+    g1:'COMPUTE', g2:'MEMORY', g3:'VOICE', g4:'POWER',
+    h1:'BUS<b>12.4 V</b>', h2:'CURRENT<b>248 A</b>', h3:'FANS<b>2,140 RPM</b>', h4:'CORE<b>4.1 GHz</b>',
+    fdHd:'SYSTEM LOG', fdEm:'LAST 60 S',
+    l1:'Core spin-up complete', l2:'Voice model v4.2 loaded', l3:'Thermal margin 6.2 °C',
+    l4:'Vision array parked', l5:'Operator channel open', l6:'Mesh cache flushed', l7:'All systems nominal',
+    b0:'PARTICLES<b>3,600</b>', b1:'SPIN<b>2.4 RPM</b>', b2:'FRAME<b>60 FPS</b>', b3:'SCAN<b>6.6 S</b>',
+    prompt:'VOICE LINK READY', hint:'HOLD [ SPACE ] TO SPEAK',
+    s1:'INPUT<b>48 kHz</b>', s2:'NOISE<b>−42 dB</b>', s3:'SYNC<b>4 MS</b>',
+    s4:'RES<b>16 BIT</b>', s5:'CODEC<b>OPUS-2</b>'
   }
 };
 
 function detectLang() {
   const q = new URLSearchParams(location.search).get('lang');
   if (q && DICT[q]) return q;
-  const nav = (navigator.language || 'en').toLowerCase();
-  return nav.startsWith('zh') ? 'zh' : 'en';
+  return (navigator.language || 'en').toLowerCase().startsWith('zh') ? 'zh' : 'en';
 }
-
 const LANG = detectLang();
 document.documentElement.lang = LANG === 'zh' ? 'zh-CN' : 'en';
 document.querySelectorAll('[data-i18n]').forEach(el => {
@@ -214,51 +298,48 @@ document.querySelectorAll('[data-i18n]').forEach(el => {
 });
 if (LANG === 'zh') {
   document.body.style.fontFamily = '"PingFang SC","Hiragino Sans GB","Source Han Sans SC","Microsoft YaHei",-apple-system,sans-serif';
-  document.querySelectorAll('.t9,.t10,.feed li,.prompt .txt').forEach(el => {
-    const s = parseFloat(getComputedStyle(el).fontSize);
-    el.style.fontSize = (s + 1) + 'px';
-    el.style.letterSpacing = el.classList.contains('t9') ? '.18em' : '.10em';
-  });
+  document.querySelectorAll('.row .n,.feed li,.mod .hd span,.brand .status').forEach(el => { el.style.letterSpacing = '.10em'; });
   document.querySelector('.brand h1').style.letterSpacing = '.10em';
   document.querySelector('.brand .sub').style.fontSize = '11px';
-  document.querySelectorAll('.c-top span,.c-bot span,.g .lab,.g .v small,.feed .hd span,.feed .hd em').forEach(el => {
-    el.style.fontSize = (parseFloat(getComputedStyle(el).fontSize) + 1) + 'px';
-  });
 }
 
-/* ============ 粒子核 ============ */
+/* ============ 画布 ============ */
 const cv = document.getElementById('scene');
 const ctx = cv.getContext('2d');
 const W = 1920, H = 1080;
-const CX = 960, CY = 508, R = 292;
+const CX = 960, CY = 486, R = 300;
 
-/* --- 静态背景层：极坐标网格 + 中心辉光 + 球边缘 --- */
+/* 静态底 */
 const bg = document.createElement('canvas');
 bg.width = W; bg.height = H;
 const bx = bg.getContext('2d');
-
 bx.globalCompositeOperation = 'lighter';
-let g = bx.createRadialGradient(CX, CY, 30, CX, CY, 620);
-g.addColorStop(0, 'rgba(111,232,255,.13)');
-g.addColorStop(.34, 'rgba(111,232,255,.055)');
-g.addColorStop(1, 'rgba(111,232,255,0)');
-bx.fillStyle = g;
-bx.beginPath(); bx.arc(CX, CY, 620, 0, Math.PI * 2); bx.fill();
 
-/* 同心圆 */
-[340, 404, 470, 556, 640].forEach((r, i) => {
-  bx.strokeStyle = `rgba(111,232,255,${0.055 - i * 0.006})`;
+let g0 = bx.createRadialGradient(CX, CY, 20, CX, CY, 660);
+g0.addColorStop(0, 'rgba(111,232,255,.16)');
+g0.addColorStop(.34, 'rgba(111,232,255,.06)');
+g0.addColorStop(1, 'rgba(111,232,255,0)');
+bx.fillStyle = g0;
+bx.beginPath(); bx.arc(CX, CY, 660, 0, Math.PI * 2); bx.fill();
+
+const fog = bx.createRadialGradient(CX, CY - 20, 10, CX, CY, R);
+fog.addColorStop(0, 'rgba(140,240,255,.14)');
+fog.addColorStop(.42, 'rgba(111,232,255,.07)');
+fog.addColorStop(.78, 'rgba(111,232,255,.02)');
+fog.addColorStop(1, 'rgba(111,232,255,0)');
+bx.fillStyle = fog;
+bx.beginPath(); bx.arc(CX, CY, R, 0, Math.PI * 2); bx.fill();
+
+[352, 412, 476, 548, 624].forEach((r, i) => {
+  bx.strokeStyle = 'rgba(111,232,255,' + (0.06 - i * 0.007) + ')';
   bx.lineWidth = 1;
   bx.beginPath(); bx.arc(CX, CY, r, 0, Math.PI * 2); bx.stroke();
 });
-
-/* 射线 */
 for (let a = 0; a < 360; a += 7.5) {
-  const rad = (a * Math.PI) / 180;
-  const inR = 300, outR = 700;
+  const rad = a * Math.PI / 180, inR = 306, outR = 700;
   const rg = bx.createLinearGradient(CX + Math.cos(rad) * inR, CY + Math.sin(rad) * inR,
                                     CX + Math.cos(rad) * outR, CY + Math.sin(rad) * outR);
-  rg.addColorStop(0, 'rgba(111,232,255,.05)');
+  rg.addColorStop(0, 'rgba(111,232,255,.055)');
   rg.addColorStop(1, 'rgba(111,232,255,0)');
   bx.strokeStyle = rg;
   bx.beginPath();
@@ -267,172 +348,273 @@ for (let a = 0; a < 360; a += 7.5) {
   bx.stroke();
 }
 
-/* 球内缘发光：让球壳两侧不发空 */
-const rim = bx.createRadialGradient(CX, CY, R - 76, CX, CY, R + 4);
-rim.addColorStop(0, 'rgba(111,232,255,0)');
-rim.addColorStop(.55, 'rgba(111,232,255,.05)');
-rim.addColorStop(1, 'rgba(111,232,255,.13)');
-bx.fillStyle = rim;
-bx.beginPath(); bx.arc(CX, CY, R + 4, 0, Math.PI * 2); bx.fill();
-
-/* 两侧竖向刻度尺 */
 [[44, 1], [W - 44, -1]].forEach(([x, dir]) => {
   for (let y = 120; y <= 960; y += 24) {
     const major = (y - 120) % 120 === 0;
-    bx.strokeStyle = `rgba(111,232,255,${major ? .20 : .075})`;
+    bx.strokeStyle = 'rgba(111,232,255,' + (major ? .20 : .07) + ')';
     bx.lineWidth = 1;
-    bx.beginPath();
-    bx.moveTo(x, y);
-    bx.lineTo(x + dir * (major ? 13 : 7), y);
-    bx.stroke();
+    bx.beginPath(); bx.moveTo(x, y); bx.lineTo(x + dir * (major ? 13 : 7), y); bx.stroke();
   }
-  bx.strokeStyle = 'rgba(111,232,255,.10)';
+  bx.strokeStyle = 'rgba(111,232,255,.09)';
   bx.beginPath(); bx.moveTo(x, 120); bx.lineTo(x, 960); bx.stroke();
 });
 
-/* 球边缘：细环 + 顶部高光弧 */
 bx.globalCompositeOperation = 'source-over';
-bx.strokeStyle = 'rgba(111,232,255,.22)';
+bx.strokeStyle = 'rgba(111,232,255,.30)';
+bx.lineWidth = 1.4;
+bx.beginPath(); bx.arc(CX, CY, R + 10, 0, Math.PI * 2); bx.stroke();
+bx.strokeStyle = 'rgba(111,232,255,.14)';
 bx.lineWidth = 1;
-bx.beginPath(); bx.arc(CX, CY, R + 8, 0, Math.PI * 2); bx.stroke();
+bx.beginPath(); bx.arc(CX, CY, R + 22, 0, Math.PI * 2); bx.stroke();
 
-bx.strokeStyle = 'rgba(214,250,255,.52)';
-bx.lineWidth = 1.6;
-bx.beginPath(); bx.arc(CX, CY, R + 7, -2.55, -0.62); bx.stroke();
-
-/* 底部反射弧 */
+bx.strokeStyle = 'rgba(214,250,255,.60)';
+bx.lineWidth = 2;
+bx.beginPath(); bx.arc(CX, CY, R + 9, -2.52, -0.66); bx.stroke();
 bx.strokeStyle = 'rgba(111,232,255,.34)';
-bx.lineWidth = 1.2;
-bx.beginPath(); bx.arc(CX, CY, R + 7, 0.72, 1.24); bx.stroke();
+bx.lineWidth = 1.6;
+bx.beginPath(); bx.arc(CX, CY, R + 9, 0.76, 1.22); bx.stroke();
 
-/* --- 粒子 --- */
-const N = 3600;
+/* 粒子 */
+const SHELLS = [
+  { n: 3300, r: 1.00, sz: 1.00, al: 1.00 },
+  { n: 1500, r: 0.58, sz: 0.62, al: 0.52 },
+  { n: 800,  r: 1.16, sz: 0.52, al: 0.36 }
+];
 const pts = [];
-const GA = Math.PI * (3 - Math.sqrt(5));
-for (let i = 0; i < N; i++) {
-  const y = 1 - (i / (N - 1)) * 2;
-  const r = Math.sqrt(Math.max(0, 1 - y * y));
-  const th = GA * i;
-  pts.push({
-    x: Math.cos(th) * r,
-    y,
-    z: Math.sin(th) * r,
-    s: 0.6 + Math.random() * 0.9,
-    ph: Math.random() * Math.PI * 2,
-    anchor: i % 96 === 0 ? 1 : 0
-  });
-}
+SHELLS.forEach(sh => {
+  for (let i = 0; i < sh.n; i++) {
+    pts.push({
+      th0: 2 * Math.PI * Math.random(),
+      ph0: Math.acos(2 * Math.random() - 1),
+      dth: (Math.random() - 0.5) * 0.10,
+      ph2: Math.random() * Math.PI * 2,
+      wob: 0.06 + Math.random() * 0.10,
+      s: sh.sz * (0.6 + Math.random() * 0.85),
+      al: sh.al,
+      r: sh.r,
+      px: null, py: null
+    });
+  }
+});
 
 const F = 1400, CAMZ = 1500;
-const rot = 0.0;
-let frame = 0;
+let raf = 0;
 
 function draw(ts) {
-  const t = (ts || 0) / 1000;
-  const rotY = t * 0.16;
+  const t = ts / 1000;
+  const spin = t * 0.28;
 
   ctx.globalCompositeOperation = 'source-over';
   ctx.clearRect(0, 0, W, H);
   ctx.globalCompositeOperation = 'lighter';
   ctx.drawImage(bg, 0, 0);
 
-  const scanNorm = Math.sin(t * 0.95) * 0.74;
+  const scanNorm = Math.sin(t * 0.95) * 0.72;
+
+  /* 径向光束 */
+  for (let i = 0; i < 18; i++) {
+    const ang = (i / 18) * Math.PI * 2 + t * 0.012;
+    const len = 470 + 250 * Math.abs(Math.sin(t * 0.35 + i * 1.7));
+    const lg = ctx.createLinearGradient(
+      CX + Math.cos(ang) * 306, CY + Math.sin(ang) * 306,
+      CX + Math.cos(ang) * len, CY + Math.sin(ang) * len);
+    const al = 0.022 + 0.020 * Math.abs(Math.sin(t * 0.5 + i * 0.9));
+    lg.addColorStop(0, 'rgba(111,232,255,' + al + ')');
+    lg.addColorStop(1, 'rgba(111,232,255,0)');
+    ctx.strokeStyle = lg;
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(CX + Math.cos(ang) * 302, CY + Math.sin(ang) * 302);
+    ctx.lineTo(CX + Math.cos(ang) * len, CY + Math.sin(ang) * len);
+    ctx.stroke();
+  }
+
+  /* 球面经纬网格 */
+  for (let i = 0; i < 8; i++) {
+    const th2 = spin * 0.55 + (i / 8) * Math.PI;
+    const rxg = Math.max(1.5, Math.abs(Math.sin(th2)) * R);
+    ctx.strokeStyle = 'rgba(111,232,255,' + (0.075 + 0.055 * Math.abs(Math.cos(th2))) + ')';
+    ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.ellipse(CX, CY, rxg, R * 0.995, 0, 0, Math.PI * 2); ctx.stroke();
+  }
+  for (let j = 1; j <= 5; j++) {
+    const phg = (j / 6) * Math.PI;
+    const yy = Math.cos(phg) * R;
+    const rxg = Math.sin(phg) * R;
+    ctx.strokeStyle = 'rgba(111,232,255,' + (j === 3 ? .115 : .07) + ')';
+    ctx.lineWidth = j === 3 ? 1.2 : 1;
+    ctx.beginPath(); ctx.ellipse(CX, CY + yy, rxg, Math.max(1.5, rxg * 0.19), 0, 0, Math.PI * 2); ctx.stroke();
+  }
 
   /* 粒子 */
-  for (let i = 0; i < N; i++) {
-    const p = pts[i];
-    const rr = R * (1 + 0.028 * Math.sin(t * 0.8 + p.ph));
-    const x = p.x * Math.cos(rotY) - p.z * Math.sin(rotY);
-    const z = p.x * Math.sin(rotY) + p.z * Math.cos(rotY);
-    const X = x * rr, Y = p.y * rr, Z = z * rr;
-    const d = Z + CAMZ;
-    const k = F / d;
+  let idx = 0;
+  for (const p of pts) {
+    idx++;
+    const th = p.th0 + spin + p.dth;
+    const ph = p.ph0 + p.wob * Math.sin(t * 0.85 + p.ph2);
+    const rr = R * p.r * (1 + 0.024 * Math.sin(t * 0.75 + p.ph2));
+
+    const cph = Math.cos(ph), sph = Math.sin(ph);
+    const X = sph * Math.cos(th) * rr;
+    const Y = cph * rr;
+    const Z = sph * Math.sin(th) * rr;
+
+    const k = F / (Z + CAMZ);
     const sx = CX + X * k, sy = CY + Y * k;
-    const depth = (Z / R + 1) / 2;          /* 0 后 → 1 前 */
-    let a = (0.19 + depth * 0.70) * (Math.abs(p.y) > 0.93 ? 0.72 : 1);
-    let size = p.s * (1.15 + depth * 1.5);
 
-    const nearScan = Math.abs(p.y - scanNorm) < 0.030;
-    if (nearScan) { a = 0.80; size += 1.8; }
+    const dep = Math.max(0, Math.min(1, (Z / rr + 1) / 2));
+    let a = (0.16 + dep * 0.82) * p.al;
+    let size = p.s * (1.1 + dep * 1.7);
 
-    const cR = Math.round(111 + (214 - 111) * (nearScan ? 1 : depth));
-    const cG = Math.round(232 + (250 - 232) * depth);
-    ctx.fillStyle = `rgba(${cR},${cG},255,${a})`;
+    const near = Math.abs(cph - scanNorm) < 0.028;
+    if (near) { a = Math.min(1, a * 1.35); size += 1.0; }
+
+    if (p.px !== null && dep > 0.18) {
+      ctx.strokeStyle = 'rgba(111,232,255,' + (a * 0.13) + ')';
+      ctx.lineWidth = Math.max(0.6, size * 0.32);
+      ctx.beginPath();
+      ctx.moveTo(p.px, p.py);
+      ctx.lineTo(sx, sy);
+      ctx.stroke();
+    }
+    p.px = sx; p.py = sy;
+
+    const cR = Math.round(111 + 144 * (near ? 1 : dep));
+    const cG = Math.round(232 + 23 * (near ? 1 : dep));
+    ctx.fillStyle = 'rgba(' + cR + ',' + cG + ',255,' + Math.min(1, a * 1.2) + ')';
     ctx.beginPath();
-    ctx.arc(sx, sy, size * 0.5, 0, Math.PI * 2);
+    ctx.arc(sx, sy, Math.max(0.5, size * 0.5), 0, Math.PI * 2);
     ctx.fill();
 
-    if (nearScan || (p.anchor && depth > 0.55)) {
-      ctx.fillStyle = `rgba(214,250,255,${nearScan ? .15 : .09})`;
-      ctx.beginPath();
-      ctx.arc(sx, sy, nearScan ? 7 : 5, 0, Math.PI * 2);
-      ctx.fill();
-    } else if (i % 9 === 0 && depth > 0.3) {
-      ctx.fillStyle = `rgba(111,232,255,${0.05 + depth * 0.06})`;
-      ctx.beginPath();
-      ctx.arc(sx, sy, 5.5, 0, Math.PI * 2);
-      ctx.fill();
+    if (near) {
+      ctx.fillStyle = 'rgba(232,252,255,.09)';
+      ctx.beginPath(); ctx.arc(sx, sy, 4.2, 0, Math.PI * 2); ctx.fill();
+    } else if (idx % 10 === 0 && dep > 0.42) {
+      ctx.fillStyle = 'rgba(131,240,255,' + (0.05 + dep * 0.05) + ')';
+      ctx.beginPath(); ctx.arc(sx, sy, 5, 0, Math.PI * 2); ctx.fill();
     }
   }
 
-  /* 三段弧 + 刻度 */
-  const arcs = [
-    { r: 372, a0: -1.62, a1: 0.58, sp: 0.055, w: 1.6, al: .55 },
-    { r: 428, a0: 1.02, a1: 4.30, sp: -0.042, w: 1.2, al: .40 },
-    { r: 482, a0: 2.34, a1: 5.16, sp: 0.030, w: 1.0, al: .28 }
-  ];
-  arcs.forEach((arc, idx) => {
-    const off = t * arc.sp;
-    ctx.strokeStyle = `rgba(111,232,255,${arc.al})`;
-    ctx.lineWidth = arc.w;
-    ctx.beginPath();
-    ctx.arc(CX, CY, arc.r, arc.a0 + off, arc.a1 + off);
-    ctx.stroke();
+  /* 核心 */
+  const core1 = ctx.createRadialGradient(CX, CY, 0, CX, CY, 150);
+  core1.addColorStop(0,   'rgba(150,244,255,.26)');
+  core1.addColorStop(.38, 'rgba(111,232,255,.075)');
+  core1.addColorStop(1,   'rgba(111,232,255,0)');
+  ctx.fillStyle = core1;
+  ctx.beginPath(); ctx.arc(CX, CY, 150, 0, Math.PI * 2); ctx.fill();
 
-    /* 端点 */
-    [arc.a0 + off, arc.a1 + off].forEach(a => {
-      const px = CX + Math.cos(a) * arc.r, py = CY + Math.sin(a) * arc.r;
-      ctx.fillStyle = 'rgba(214,250,255,.9)';
-      ctx.fillRect(px - 2, py - 2, 4, 4);
+  const core2 = ctx.createRadialGradient(CX, CY, 0, CX, CY, 54);
+  core2.addColorStop(0,   'rgba(255,255,255,1)');
+  core2.addColorStop(.24, 'rgba(240,254,255,.94)');
+  core2.addColorStop(.58, 'rgba(140,242,255,.26)');
+  core2.addColorStop(1,   'rgba(111,232,255,0)');
+  ctx.fillStyle = core2;
+  ctx.beginPath(); ctx.arc(CX, CY, 54, 0, Math.PI * 2); ctx.fill();
+
+  /* 纵向能量柱 */
+  const vg = ctx.createLinearGradient(CX, CY - R - 34, CX, CY + R + 34);
+  vg.addColorStop(0,   'rgba(111,232,255,0)');
+  vg.addColorStop(.34, 'rgba(140,240,255,.055)');
+  vg.addColorStop(.5,  'rgba(210,250,255,.13)');
+  vg.addColorStop(.66, 'rgba(140,240,255,.055)');
+  vg.addColorStop(1,   'rgba(111,232,255,0)');
+  ctx.fillStyle = vg;
+  ctx.fillRect(CX - 6, CY - R - 34, 12, R * 2 + 68);
+
+  const fl = 330;
+  [[1, 0], [0, 1]].forEach(d2 => {
+    const dx = d2[0], dy = d2[1];
+    const flg = ctx.createLinearGradient(CX - dx * fl, CY - dy * fl, CX + dx * fl, CY + dy * fl);
+    flg.addColorStop(0,   'rgba(214,250,255,0)');
+    flg.addColorStop(.40, 'rgba(214,250,255,.09)');
+    flg.addColorStop(.5,  'rgba(255,255,255,.58)');
+    flg.addColorStop(.60, 'rgba(214,250,255,.09)');
+    flg.addColorStop(1,   'rgba(214,250,255,0)');
+    ctx.strokeStyle = flg;
+    ctx.lineWidth = 1.7;
+    ctx.beginPath();
+    ctx.moveTo(CX - dx * fl, CY - dy * fl);
+    ctx.lineTo(CX + dx * fl, CY + dy * fl);
+    ctx.stroke();
+  });
+
+  /* 三段弧 */
+  const arcs = [
+    { r: 382, a0: -1.62, a1: 0.58, sp: 0.055, w: 2.6, al: .62 },
+    { r: 440, a0: 1.02, a1: 4.30, sp: -0.042, w: 2.0, al: .46 },
+    { r: 498, a0: 2.34, a1: 5.16, sp: 0.030, w: 1.5, al: .32 }
+  ];
+  arcs.forEach((arc, i) => {
+    const off = t * arc.sp;
+    ctx.strokeStyle = 'rgba(111,232,255,' + arc.al + ')';
+    ctx.lineWidth = arc.w;
+    ctx.beginPath(); ctx.arc(CX, CY, arc.r, arc.a0 + off, arc.a1 + off); ctx.stroke();
+
+    [arc.a0 + off, arc.a1 + off].forEach(a2 => {
+      const px = CX + Math.cos(a2) * arc.r, py = CY + Math.sin(a2) * arc.r;
+      ctx.fillStyle = 'rgba(230,252,255,.9)';
+      ctx.fillRect(px - 2.5, py - 2.5, 5, 5);
     });
 
-    /* 刻度 */
-    const stepDeg = idx === 2 ? 6 : 9;
+    const ha = arc.a0 + off + (arc.a1 - arc.a0) * (0.5 + 0.5 * Math.sin(t * 0.42 + i * 2.1));
+    const hx = CX + Math.cos(ha) * arc.r, hy = CY + Math.sin(ha) * arc.r;
+    const hg = ctx.createRadialGradient(hx, hy, 0, hx, hy, 17);
+    hg.addColorStop(0, 'rgba(255,255,255,.88)');
+    hg.addColorStop(.40, 'rgba(160,245,255,.32)');
+    hg.addColorStop(1, 'rgba(111,232,255,0)');
+    ctx.fillStyle = hg;
+    ctx.beginPath(); ctx.arc(hx, hy, 17, 0, Math.PI * 2); ctx.fill();
+
+    const stepDeg = i === 2 ? 6 : 9;
     for (let deg = 0; deg < 360; deg += stepDeg) {
-      const a = (deg / 180) * Math.PI + off;
-      const inR = arc.r - (deg % 30 === 0 ? 13 : 7);
-      ctx.strokeStyle = `rgba(111,232,255,${deg % 30 === 0 ? .30 : .12})`;
+      const a2 = (deg / 180) * Math.PI + off;
+      const inR = arc.r - (deg % 30 === 0 ? 14 : 7);
+      ctx.strokeStyle = 'rgba(111,232,255,' + (deg % 30 === 0 ? .30 : .11) + ')';
       ctx.lineWidth = 1;
       ctx.beginPath();
-      ctx.moveTo(CX + Math.cos(a) * inR, CY + Math.sin(a) * arc.r);
-      ctx.lineTo(CX + Math.cos(a) * arc.r, CY + Math.sin(a) * arc.r);
+      ctx.moveTo(CX + Math.cos(a2) * inR, CY + Math.sin(a2) * inR);
+      ctx.lineTo(CX + Math.cos(a2) * arc.r, CY + Math.sin(a2) * arc.r);
       ctx.stroke();
     }
   });
 
-  /* 扫描面：椭圆切面 + 边缘描边 */
-  const sy = CY + scanNorm * R * 0.80;
-  const rx = R * 0.94, ry = 62;
-  ctx.strokeStyle = 'rgba(214,250,255,.20)';
-  ctx.lineWidth = 1;
-  ctx.beginPath();
-  ctx.ellipse(CX, sy, rx, ry, 0, 0, Math.PI * 2);
-  ctx.stroke();
+  /* 扫描切面 */
+  const sy2 = CY + scanNorm * R * 0.78;
+  const rx = R * 0.96, ry = 56;
 
-  const eg = ctx.createLinearGradient(0, sy - ry, 0, sy + ry);
-  eg.addColorStop(0, 'rgba(111,232,255,.05)');
-  eg.addColorStop(.5, 'rgba(214,250,255,.08)');
-  eg.addColorStop(1, 'rgba(111,232,255,.05)');
+  const eg = ctx.createLinearGradient(0, sy2 - ry, 0, sy2 + ry);
+  eg.addColorStop(0,  'rgba(111,232,255,.02)');
+  eg.addColorStop(.5, 'rgba(230,252,255,.085)');
+  eg.addColorStop(1,  'rgba(111,232,255,.02)');
   ctx.fillStyle = eg;
-  ctx.beginPath();
-  ctx.ellipse(CX, sy, rx, ry, 0, 0, Math.PI * 2);
-  ctx.fill();
+  ctx.beginPath(); ctx.ellipse(CX, sy2, rx, ry, 0, 0, Math.PI * 2); ctx.fill();
 
+  ctx.strokeStyle = 'rgba(230,252,255,.34)';
+  ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.ellipse(CX, sy2, rx, ry, 0, 0, Math.PI * 2); ctx.stroke();
+
+  ctx.strokeStyle = 'rgba(111,232,255,.20)';
+  ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.ellipse(CX, sy2, rx * 0.60, ry * 0.60, 0, 0, Math.PI * 2); ctx.stroke();
+
+  /* 横向镜头光条 */
+  const bw = 940;
+  const bg2 = ctx.createLinearGradient(CX - bw, CY, CX + bw, CY);
+  bg2.addColorStop(0,   'rgba(111,232,255,0)');
+  bg2.addColorStop(.32, 'rgba(111,232,255,.05)');
+  bg2.addColorStop(.5,  'rgba(200,248,255,.30)');
+  bg2.addColorStop(.68, 'rgba(111,232,255,.05)');
+  bg2.addColorStop(1,   'rgba(111,232,255,0)');
+  ctx.fillStyle = bg2;
+  ctx.fillRect(CX - bw, CY - 4, bw * 2, 8);
+
+  ctx.fillStyle = 'rgba(255,255,255,.50)';
+  ctx.fillRect(CX - 260, CY - 0.6, 520, 1.2);
 
   ctx.globalCompositeOperation = 'source-over';
-  if (++frame < 9999) requestAnimationFrame(draw);
+  raf = requestAnimationFrame(draw);
 }
-requestAnimationFrame(draw);
+raf = requestAnimationFrame(draw);
 </script>
 </body>
 </html>
