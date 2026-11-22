@@ -37,11 +37,15 @@ hud-deep-dive/           按层深潜 + 适用条件
         ├── visual-language.md      色彩、字体与发光
         ├── motion-choreography.md  动效编排
         └── diegetic-integration.md 实拍 / 引擎内嵌
-示例/战术态势HUD/         一套 1920×1080 成品，中英两版
-├── hero.html             英文版（单一源文件）
-├── hero-zh.html          中文版（由 build-zh.py 生成）
-├── build-zh.py           文案映射，改一处两版同步
-└── screenshots/          成图与 25% 缩略
+示例/                       两套方向相反的成品，各出中英两版
+├── 贾维斯全息核心/          径向：粒子球 + 三段弧，运行时双语
+│   ├── hero.html          单文件，?lang=zh / en
+│   └── screenshots/       成图与 25% 缩略
+└── 战术态势HUD/            分区：地形 + 锁定框，编译双语
+    ├── hero.html          英文版（单一源文件）
+    ├── hero-zh.html       中文版（由 build-zh.py 生成）
+    ├── build-zh.py        文案映射，改一处两版同步
+    └── screenshots/
 ```
 
 | 技能 | 一句话 | 触发场景 |
@@ -74,37 +78,56 @@ cp -R hud-design hud-audit hud-deep-dive \
 3. **只改一层** → `hud-deep-dive`。说清你要改布局、配色、动效还是内嵌，它只加载一张卡，不会把整套流程重跑一遍。
 4. **验收**：design 看 8 份文件齐不齐、6 项测试过没过；audit 看每条修复是否带「证据 → 影响 → 修法 → 验收」，且 P0 ≤5 条。
 
-## 示例：一套过审的战术态势 HUD
+## 示例：两套方向相反的成品
 
-`示例/战术态势HUD/` 是一套 1920×1080、单文件、零外部依赖的成品。同一份布局出中英两版，用来验证语言规则：中文版换字体与字号，英文版全大写 + 字距 0.16em。
+同一套规则能出两种气质：一套径向，一套分区。都是 1920×1080、单文件、零外部依赖，中英各一版。
+
+### 一、贾维斯全息核心 / JARVIS Holographic Core
+
+`示例/贾维斯全息核心/` 走径向构图：中央 3,600 个粒子的球核，三段弧反向缓转，扫描切面 6.6 秒一轮切过球体。四角只放短面板，球体包围盒内零文字。双语靠运行时字典切换（`?lang=zh` / `en`，缺省按系统语言）。
+
+![贾维斯全息核心 中文版](示例/贾维斯全息核心/screenshots/jarvis-1920x1080-zh.png)
+
+![贾维斯全息核心 英文版](示例/贾维斯全息核心/screenshots/jarvis-1920x1080-en.png)
+
+### 二、战术态势 HUD / Tactical Situation
+
+`示例/战术态势HUD/` 走分区构图：中央地形等高线与四个锁定框，左轨编队与频谱，右轨目标队列与事件流。中文版由 `build-zh.py` 从英文版编译，两份布局不会各自漂移。
 
 ![战术态势 HUD 中文版](示例/战术态势HUD/screenshots/hero-zh-1920x1080.png)
 
 ![战术态势 HUD 英文版](示例/战术态势HUD/screenshots/hero-1920x1080.png)
 
-缩到 25% 再看一眼：分区还在、主目标还能找到、告警色还扎眼，但小字不再追求可读——这个层级差是故意留的。
+两套缩到 25% 再各看一眼——结构还在，细节主动放弃：
 
-![25% 缩略](示例/战术态势HUD/screenshots/hero-zh-25pct.png)
+![全息核 25%](示例/贾维斯全息核心/screenshots/jarvis-25pct.png)
 
-这张图过了什么测试（对应 `hud-design` 的验收项）：
+![战术屏 25%](示例/战术态势HUD/screenshots/hero-zh-25pct.png)
 
-| 测试 | 怎么测 | 结果 |
+### 同一张验收表
+
+| 测试 | 全息核 | 战术屏 |
 |---|---|---|
-| 3 秒测试 | 缩到 25%，看 3 秒 | 认出「无人机集群 · 战场指挥」，分出主目标与告警 |
-| 灰阶测试 | 转灰度看层级 | 正文 / 次要 / 背景三层可分，靠亮度不靠色相 |
-| 告警占比 | 数红色像素 | 4.1%，只出现在 TGT-04 与告警条，≤5% |
-| 中央净空 | 量主体包围盒 | 中区不放常驻文字，锁定框与指标都在包围盒内 |
-| 叠层数 | 数同一区域的叠加 | ≤3 层（细网格 / 地形 / 控件），介质痕迹只用网格、扫描线、噪点 |
-| 语言一致性 | 逐块检查文案 | 每版只有一种自然语言，机器标识（UAV-02、ROE-2）除外 |
+| 3 秒测试（缩 25% 看 3 秒） | 认出「AI 核心」，球体与扫描面都在 | 认出「无人机集群 · 战场指挥」，主目标与告警都在 |
+| 灰阶 | 球壳 / 弧 / 面板三层可分 | 正文 / 次要 / 背景三层可分 |
+| 强调色占比 | 琥珀仅「热余量」一条，≈0.4% | 红仅 TGT-04 与告警条，4.1% |
+| 中央净空 | 球体包围盒内零文字 | 中区无文字，锁定框内只有指标 |
+| 叠层 | 极坐标网格 / 粒子 / 控件 = 3 | 细网格 / 地形 / 控件 = 3 |
+| 并发动效 | 球转 + 弧转 + 扫描 = 3 | 静态帧，无循环 |
+| 语言一致性 | 每版一种自然语言，机器标识除外 | 同 |
 
-复现（任意无头浏览器均可，不依赖字体或 CDN）：
+复现（任意无头浏览器，不依赖字体与 CDN）：
 
 ```bash
-cd 示例/战术态势HUD
-python3 build-zh.py          # 改完英文版后重新生成中文版
-"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" \
-  --headless=new --window-size=1920,1080 --force-device-scale-factor=1 \
-  --screenshot=screenshots/hero-1920x1080.png "file://$PWD/hero.html"
+# 全息核：动画画面，必须给虚拟时间预算
+cd 示例/贾维斯全息核心
+"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" --headless=new \
+  --window-size=1920,1080 --force-device-scale-factor=1 --virtual-time-budget=1600 \
+  --screenshot=screenshots/jarvis-1920x1080-zh.png "file://$PWD/hero.html?lang=zh"
+
+# 战术屏：改完英文版后重新生成中文版
+cd ../战术态势HUD
+python3 build-zh.py
 ```
 
 ## 界面显示语言：先探测，再动手
